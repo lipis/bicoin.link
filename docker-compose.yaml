@@ -8,6 +8,8 @@ services:
       - worker
     ports:
       - 8080:8080
+    logging:
+      driver: none
 
   worker:
     build: .
@@ -23,3 +25,5 @@ services:
 
   redis:
     image: "redis:alpine"
+    logging:
+      driver: none

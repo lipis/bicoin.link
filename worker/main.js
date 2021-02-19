@@ -2,10 +2,15 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const Redis = require("ioredis");
+const uuid = require("uuid");
+const body_parser = require("body-parser");
 
 const port = 8080;
 const binance_ws_url = "wss://stream.binance.com:9443/ws/btcusdt@aggTrade";
 const history_length = 6;
+
+let last_time = 0;
+let last_price = 0;
 
 const app = express();
 app.set("json spaces", 2);
@@ -40,7 +45,7 @@ class RedisStore {
   async set_ticker(ticker, seconds, price) {
     const json = JSON.stringify({ ticker, seconds, price });
     await this.redis.set("ticker#" + ticker, json);
-    await this.redis.zadd("history#" + ticker, 1, json);
+    await this.redis.zadd("history#" + ticker, seconds, json);
   }
 
   async get_ticker(ticker) {
@@ -49,14 +54,30 @@ class RedisStore {
   }
 
   async get_history(ticker) {
-    let start = 0;
-    start = Math.floor(Date.now() / 1000) - 1000;
-    const values = await this.redis.zrange(
-      "history#" + ticker,
-      -history_length,
-      -1
-    );
-    return values.map(JSON.parse);
+    return (
+      await this.redis.zrange("history#" + ticker, -history_length, -1)
+    ).map(JSON.parse);
+  }
+
+  async get_bets(ticker, user_id) {
+    const key = "bets#" + ticker + "#" + user_id;
+    return (await this.redis.zrange(key, 0, -1)).map(JSON.parse);
+  }
+
+  async put_bet(ticker, user_id, is_up) {
+    const seconds = Math.ceil(last_time);
+    const bet = {
+      bet_id: uuid.v4(),
+      user_id,
+      seconds,
+      is_up,
+      open_price: last_price,
+      close_price: null,
+      win: null,
+    };
+    const key = "bets#" + ticker + "#" + user_id;
+    await this.redis.zadd(key, seconds, JSON.stringify(bet));
+    return bet;
   }
 }
 const store = new RedisStore(new Redis(process.env.REDIS_URL));
@@ -68,6 +89,18 @@ app.get("/rest/ticker/:ticker", async (req, res) => {
 
 app.get("/rest/history/:ticker", async (req, res) => {
   res.json(await store.get_history(req.params.ticker));
+});
+
+app.get("/rest/bets", async (req, res) => {
+  const user_id = req.headers["auth-token"];
+  if (!user_id) return res.json(null);
+  res.json(await store.get_bets(req.params.ticker, user_id));
+});
+
+app.post("/rest/bets", body_parser.json(), async (req, res) => {
+  const user_id = req.headers["auth-token"];
+  if (!user_id) return res.json(null);
+  res.json(await store.put_bet(req.params.ticker, user_id, req.body.is_up));
 });
 
 // # Public WebSocket API
@@ -92,8 +125,6 @@ function wss_private_broadcast(user_id, tag, data) {}
 (function binance() {
   const ticker = "btcusdt";
   const queue = [];
-  let last_time = 0;
-  let last_price = 0;
   (async function process_binance() {
     while (queue.length) {
       const { time, price } = queue.shift();

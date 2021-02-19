@@ -7,10 +7,9 @@ const reconnect_timeout_ms = 1000;
 
 const state = {
   token: localStorage.getItem(TOKEN) || null,
-  width: 0,
-  height: 0,
-  history: [],
   ticker: { ticker: "btcusdt", seconds: 0, price: 0 },
+  history: [],
+  bets: [],
 };
 let public_ws = null;
 let private_ws = null;
@@ -19,6 +18,7 @@ let private_ws = null;
   reconnect_public_ws();
   reconnect_private_ws();
   fetch_history();
+  fetch_bets();
 })();
 
 // # UI Actions
@@ -29,16 +29,18 @@ function login() {
     localStorage.setItem(TOKEN, state.token);
   } else localStorage.removeItem(TOKEN);
   reconnect_private_ws();
+  fetch_bets();
 }
 
 function logout() {
   state.token = null;
+  state.bets = [];
   localStorage.removeItem(TOKEN);
   reconnect_private_ws();
 }
 
-function place_bet(is_up) {
-  console.log("# TODO place_bet", is_up);
+async function place_bet(is_up) {
+  state.bets.push(await rest_post("/rest/bets/", { is_up }));
 }
 
 // # Mirror
@@ -47,30 +49,36 @@ function place_bet(is_up) {
   const login_el = document.getElementById("login");
   const logout_el = document.getElementById("logout");
   const buttons_el = document.getElementById("buttons");
-  let last_ticker_value = null;
+  let last_auth_token = -1;
+  let last_ticker_seconds = -1;
 
   (function mirror() {
-    if (state.token) {
-      login_el.style.display = "none";
-      logout_el.style.display = "block";
-      logout_el.innerText = "Logout @" + state.token;
-      buttons_el.style.display = "flex";
-    } else {
-      login_el.style.display = "block";
-      logout_el.style.display = "none";
-      logout_el.style.innerText = "";
-      buttons_el.style.display = "none";
+    if (last_auth_token != state.token) {
+      last_auth_token = state.token;
+      if (state.token) {
+        login_el.style.display = "none";
+        logout_el.style.display = "block";
+        logout_el.innerText = "Logout @" + state.token;
+        buttons_el.style.display = "flex";
+      } else {
+        login_el.style.display = "block";
+        logout_el.style.display = "none";
+        logout_el.style.innerText = "";
+        buttons_el.style.display = "none";
+      }
     }
-    const date = new Date(state.ticker.seconds * 1000)
-      .toJSON()
-      .replace(".000", "")
-      .replace("T", " ")
-      .replace("Z", "");
-    let price_str = state.ticker.price.toString();
-    while (price_str.length < 9) price_str = price_str + "0";
-    const ticker_value = `${date} &nbsp; 1 BTC = <span style="color: white">${price_str}</span> USDT`;
-    if (ticker_value != last_ticker_value) ticker_el.innerHTML = ticker_value;
-    last_ticker_value = ticker_value;
+    if (last_ticker_seconds != state.ticker.seconds) {
+      last_ticker_seconds = state.ticker.seconds;
+      const date = new Date(state.ticker.seconds * 1000)
+        .toJSON()
+        .replace(".000", "")
+        .replace("T", " ")
+        .replace("Z", "");
+      let price_str = state.ticker.price.toString();
+      while (price_str.length < 9) price_str = price_str + "0";
+      const ticker_value = `${date} &nbsp; 1 BTC = <span style="color: white">${price_str}</span> USDT`;
+      ticker_el.innerHTML = ticker_value;
+    }
     requestAnimationFrame(mirror);
   })();
 }
@@ -79,11 +87,11 @@ function place_bet(is_up) {
 function reconnect_public_ws() {
   if (public_ws) public_ws.close();
   public_ws = new WebSocket(public_ws_url);
-  public_ws.onclose = () =>
-    setTimeout(reconnect_public_ws, reconnect_timeout_ms);
+  // public_ws.onclose = () =>
+  //   setTimeout(reconnect_public_ws, reconnect_timeout_ms);
   public_ws.onerror = (error) => {
-    console.error(error);
-    setTimeout(reconnect_public_ws, reconnect_timeout_ms);
+    console.error(error.message);
+    // setTimeout(reconnect_public_ws, reconnect_timeout_ms);
   };
   public_ws.onmessage = (message) => {
     const { tag, data } = JSON.parse(message.data);
@@ -96,11 +104,11 @@ function reconnect_private_ws() {
   private = null;
   if (!state.token) return;
   private_ws = new WebSocket(private_ws_url);
-  private_ws.onclose = () =>
-    setTimeout(reconnect_private_ws, reconnect_timeout_ms);
+  // private_ws.onclose = () =>
+  //   setTimeout(reconnect_private_ws, reconnect_timeout_ms);
   private_ws.onerror = (error) => {
-    console.error(error);
-    setTimeout(reconnect_private_ws, reconnect_timeout_ms);
+    console.error(error.message);
+    // setTimeout(reconnect_private_ws, reconnect_timeout_ms);
   };
   private_ws.onmessage = (message) => {
     const { tag, data } = JSON.parse(message.data);
@@ -118,12 +126,42 @@ function on_private(tag, data) {
 
 // # REST
 async function rest_get(path) {
-  const response = await fetch(rest_base_url + path);
+  const response = await fetch(rest_base_url + path, {
+    method: "GET",
+    headers: { "auth-token": state.token },
+  });
   return await response.json();
 }
 
-async function rest_post(path, data) {}
+async function rest_post(path, data) {
+  const response = await fetch(rest_base_url + path, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "auth-token": state.token,
+    },
+    body: JSON.stringify(data),
+  });
+  return await response.json();
+}
 
 async function fetch_history() {
   state.history = await rest_get("/rest/history/btcusdt");
 }
+
+async function fetch_bets() {
+  if (!state.token) return;
+  state.bets = await rest_get("/rest/bets/");
+}
+
+// # Render
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+(function render_loop() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  render_history(ctx, canvas.width, canvas.height, state.history);
+  render_bets(ctx, canvas.width, canvas.height, state.bets);
+})();

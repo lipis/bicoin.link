@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <title>bicoin.link</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <video
+      id="background"
+      muted
+      autoplay
+      src="https://storage.googleapis.com/bicoin-link.appspot.com/moonlight-sonata.mp4"
+    ></video>
+    <canvas id="canvas"></canvas>
+    <div id="top-left">
+      <a href="/" id="title">
+        <div id="logo"></div>
+        <div id="title">BiCoin.link</div>
+      </a>
+      <div class="gap"></div>
+      <div id="ticker">ticker</div>
+    </div>
+    <div id="top-right">
+      <a href="https://github.com/tzador/bicoin.link">GitHub</a>
+      <div class="gap"></div>
+      <a id="login" onclick="login()">Login</a>
+      <a id="logout" onclick="logout()">Logout</a>
+      <div class="gap"></div>
+    </div>
+    <div id="buttons">
+      <div onclick="javascript:place_bet(true)">bet up</div>
+      <div onclick="javascript:place_bet(false)">bet down</div>
+    </div>
+    <script src="render.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

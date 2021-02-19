@@ -14,7 +14,7 @@ let last_price = 0;
 
 const app = express();
 app.set("json spaces", 2);
-app.use(express.static("docs"));
+app.use(express.static("vanilla"));
 
 const server = http.createServer(app);
 server.listen(port, () => console.log("http://localhost:" + port));

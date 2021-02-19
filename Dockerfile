@@ -9,7 +9,7 @@ COPY ./worker/package-lock.json ./
 
 RUN npm i
 
-COPY ./docs ./docs
+COPY ./vanilla ./vanilla
 COPY ./worker/main.js ./
 
 EXPOSE 8080

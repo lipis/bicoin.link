@@ -2,4 +2,4 @@
 
 BiCoin
 
-[/vanilla](/vanilla)
+[/vanilla](/vanilla/index.html)

@@ -1,31 +1,31 @@
-const AUTH_KEY = "auth-key";
+const TOKEN = "token";
 
 const state = {
-  user: localStorage.getItem(AUTH_KEY) || null,
+  token: localStorage.getItem(TOKEN) || null,
   width: 0,
   height: 0,
 };
 
 // Auth
 function login() {
-  state.user = prompt("Enter a nickname:") || null;
-  if (state.user) {
-    state.user = state.user.trim();
-    localStorage.setItem(AUTH_KEY, state.user);
-  } else localStorage.removeItem(AUTH_KEY);
+  state.token = prompt("Enter a nickname:") || null;
+  if (state.token) {
+    state.token = state.token.trim();
+    localStorage.setItem(TOKEN, state.token);
+  } else localStorage.removeItem(TOKEN);
 }
 
 function logout() {
-  state.user = null;
-  localStorage.removeItem(AUTH_KEY);
+  state.token = null;
+  localStorage.removeItem(TOKEN);
 }
 
 const logout_a = document.getElementById("logout");
 
 (function update_login_logout() {
   requestAnimationFrame(update_login_logout);
-  if (state.user) {
-    logout_a.innerText = "Logout @" + state.user;
+  if (state.token) {
+    logout_a.innerText = "Logout @" + state.token;
   } else {
     logout_a.style.innerText = "";
   }

@@ -16,10 +16,12 @@ a,
 a:visited {
   color: dodgerblue;
   text-decoration: none;
+  cursor: pointer;
 }
 a:hover {
   color: white;
 }
+
 .gap {
   width: 16px;
   height: 16px;
@@ -54,17 +56,21 @@ a:hover {
   line-height: 48px;
   display: flex;
 }
+
 #top-left {
   left: 0;
 }
+
 #top-right {
   right: 0;
   padding-right: 8px;
 }
+
 #title {
   display: flex;
   font-size: 32px;
 }
+
 #logo {
   width: 32px;
   height: 32px;
@@ -76,6 +82,7 @@ a:hover {
   margin: 8px;
   animation: rotation 4s infinite linear;
 }
+
 @keyframes rotation {
   from {
     transform: rotate(360deg);
@@ -84,9 +91,35 @@ a:hover {
     transform: rotate(0deg);
   }
 }
+
 #ticker {
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
   line-height: 48px;
   color: rgba(255, 255, 255, 0.5);
+}
+
+#buttons {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+}
+
+#buttons > div {
+  width: 50%;
+  height: 48px;
+  line-height: 48px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+#buttons > div:first-child {
+  background-color: rgba(0, 255, 0, 0.5);
+}
+
+#buttons > div:last-child {
+  background-color: rgba(255, 0, 0, 0.5);
 }

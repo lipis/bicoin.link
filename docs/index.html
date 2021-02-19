@@ -29,9 +29,13 @@
     <div id="top-right">
       <a href="https://github.com/tzador/bicoin.link">GitHub</a>
       <div class="gap"></div>
-      <a id="login" href="javascript:login()">Login</a>
-      <a id="logout" href="javascript:logout()">Logout</a>
+      <a id="login" onclick="login()">Login</a>
+      <a id="logout" onclick="logout()">Logout</a>
       <div class="gap"></div>
+    </div>
+    <div id="buttons">
+      <div onclick="javascript:place_bet(true)">bet up</div>
+      <div onclick="javascript:place_bet(false)">bet down</div>
     </div>
     <script src="index.js"></script>
   </body>

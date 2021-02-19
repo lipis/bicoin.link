@@ -2,6 +2,7 @@ const TOKEN = "auth_token";
 const public_ws_url = "ws://localhost:8080/ws/public";
 const private_ws_url = "ws://localhost:8080/ws/private";
 const binance_ws_url = "wss://stream.binance.com:9443/ws/btcusdt@aggTrade";
+const rest_base_url = "";
 const reconnect_timeout_ms = 1000;
 
 const state = {
@@ -14,10 +15,13 @@ const state = {
 let public_ws = null;
 let private_ws = null;
 
-reconnect_public_ws();
-reconnect_private_ws();
+(function boot() {
+  reconnect_public_ws();
+  reconnect_private_ws();
+  fetch_history();
+})();
 
-// # Auth
+// # UI Actions
 function login() {
   state.token = prompt("Enter a nickname:") || null;
   if (state.token) {
@@ -33,24 +37,30 @@ function logout() {
   reconnect_private_ws();
 }
 
-const ticker_el = document.getElementById("ticker");
-const login_el = document.getElementById("login");
-const logout_el = document.getElementById("logout");
-let last_ticker_value = null;
+function place_bet(is_up) {
+  console.log("# TODO place_bet", is_up);
+}
 
-(function mirror() {
-  if (state.token) {
-    login_el.style.display = "none";
-    logout_el.style.display = "block";
-    logout_el.innerText = "Logout @" + state.token;
-  } else {
-    login_el.style.display = "block";
-    logout_el.style.display = "none";
-    logout_el.style.innerText = "";
-  }
+// # Mirror
+{
+  const ticker_el = document.getElementById("ticker");
+  const login_el = document.getElementById("login");
+  const logout_el = document.getElementById("logout");
+  const buttons_el = document.getElementById("buttons");
+  let last_ticker_value = null;
 
-  {
-    // Ticker
+  (function mirror() {
+    if (state.token) {
+      login_el.style.display = "none";
+      logout_el.style.display = "block";
+      logout_el.innerText = "Logout @" + state.token;
+      buttons_el.style.display = "flex";
+    } else {
+      login_el.style.display = "block";
+      logout_el.style.display = "none";
+      logout_el.style.innerText = "";
+      buttons_el.style.display = "none";
+    }
     const date = new Date(state.ticker.seconds * 1000)
       .toJSON()
       .replace(".000", "")
@@ -61,10 +71,9 @@ let last_ticker_value = null;
     const ticker_value = `${date} &nbsp; 1 BTC = <span style="color: white">${price_str}</span> USDT`;
     if (ticker_value != last_ticker_value) ticker_el.innerHTML = ticker_value;
     last_ticker_value = ticker_value;
-  }
-  JSON.stringify(state.ticker);
-  requestAnimationFrame(mirror);
-})();
+    requestAnimationFrame(mirror);
+  })();
+}
 
 // # WebSocket
 function reconnect_public_ws() {
@@ -105,4 +114,16 @@ function on_public(tag, data) {
 
 function on_private(tag, data) {
   console.log("on_private", tag, data);
+}
+
+// # REST
+async function rest_get(path) {
+  const response = await fetch(rest_base_url + path);
+  return await response.json();
+}
+
+async function rest_post(path, data) {}
+
+async function fetch_history() {
+  state.history = await rest_get("/rest/history/btcusdt");
 }

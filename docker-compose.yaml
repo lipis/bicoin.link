@@ -15,7 +15,7 @@ services:
     build: .
     volumes:
       - ./worker/main.js:/worker/main.js
-      - ./docs:/worker/docs
+      - ./vanilla:/worker/vanilla
     environment:
       REDIS_URL: redis://redis
     entrypoint: nodemon main.js

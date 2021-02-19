@@ -159,9 +159,11 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 (function render_loop() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = 14 * devicePixelRatio + 'px "Roboto Mono", monospace';
   render_history(ctx, canvas.width, canvas.height, state.history);
   render_bets(ctx, canvas.width, canvas.height, state.bets);
+  requestAnimationFrame(render_loop);
 })();

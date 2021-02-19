@@ -2,7 +2,7 @@
 
 Bla bla bla.
 
-[https://tzador.github.io/bicoin.link](All The Source)
+[Read The Source](https://tzador.github.io/bicoin.link)
 
 # Protocol
 

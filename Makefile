@@ -4,3 +4,6 @@ docker:
 
 deploy:
 	@echo TODO
+
+docs:
+	@echo TODO

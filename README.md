@@ -1,0 +1,2 @@
+# bicoin.link
+BiCoin

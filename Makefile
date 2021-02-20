@@ -2,8 +2,11 @@ docker:
 	@clear
 	@docker-compose up --build
 
-deploy:
-	@echo TODO
-
 docs:
-	@echo TODO
+	@echo TODO docs
+
+synth:
+  @cdk synth
+
+deploy: docs
+	@cdk deploy

@@ -2,16 +2,17 @@ const bets_width = 274;
 const shift_x = 0 * 240;
 const speed_x = 8;
 
-let animated_price = 0;
 let price_min = Number.MAX_VALUE;
 let price_max = Number.MIN_VALUE;
 let seconds_now = Date.now() / 1000.0;
 let width = 0;
 let height = 0;
+let dpi = 1;
 
 function render(ctx, w, h, state) {
   width = w;
   height = h;
+  dpi = devicePixelRatio;
   seconds_now = Date.now() / 1000.0;
   render_init(state.history);
   render_history(ctx, state.history, state.ticker.price);
@@ -20,11 +21,12 @@ function render(ctx, w, h, state) {
 }
 
 function render_init(history) {
+  dpi = devicePixelRatio;
   price_min = Number.MAX_VALUE;
   price_max = Number.MIN_VALUE;
   for (const { price } of history) {
-    price_min = Math.min(price - 100, price_min);
-    price_max = Math.max(price + 100, price_max);
+    price_min = Math.min(price, price_min);
+    price_max = Math.max(price, price_max);
   }
 }
 
@@ -52,22 +54,24 @@ function render_zebra(ctx, history) {
 }
 
 function render_history(ctx, history, current_price) {
-  animated_price = animated_price * 0.9 + 0.1 * current_price;
-
-  const dpi = devicePixelRatio;
+  if (history.length == 0) return;
   ctx.save();
   ctx.beginPath();
   let first_time = true;
   let last_x = 0;
   let last_y = 0;
+  let first_x = 0;
+  let first_y = 0;
   for (const { seconds, price } of history) {
     const x = seconds_to_x(seconds);
     const y = price_to_y(price);
     last_x = x;
     last_y = y;
     if (first_time) {
-      ctx.moveTo(x, height);
+      ctx.moveTo(x, y);
       first_time = false;
+      first_x = x;
+      first_y = y;
     }
     ctx.lineTo(x, y);
   }
@@ -77,7 +81,9 @@ function render_history(ctx, history, current_price) {
   const zero_x = seconds_to_x(seconds_now);
   ctx.lineTo(zero_x, last_y);
   ctx.stroke();
+
   ctx.lineTo(zero_x, height);
+  ctx.lineTo(first_x, height);
   ctx.closePath();
   ctx.clip();
   var gradient = ctx.createLinearGradient(0, 0, 0, height);
@@ -89,7 +95,6 @@ function render_history(ctx, history, current_price) {
 }
 
 function render_bets(ctx, bets) {
-  const dpi = devicePixelRatio;
   ctx.save();
   let y = 48 * dpi;
   for (const bet of bets) {
@@ -127,8 +132,7 @@ function seconds_to_x(seconds) {
 function price_to_y(p) {
   return (
     height -
-    48 * devicePixelRatio -
-    (height - 2 * 48 * devicePixelRatio) *
-      ((p - price_min) / (price_max - price_min))
+    2 * 48 * dpi -
+    (height - 4 * 48 * dpi) * ((p - price_min) / (price_max - price_min))
   );
 }

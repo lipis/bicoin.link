@@ -7,7 +7,7 @@ const body_parser = require("body-parser");
 
 const port = 8080;
 const binance_ws_url = "wss://stream.binance.com:9443/ws/btcusdt@aggTrade";
-const history_length = 60 * 4; //24 * 60 * 60;
+const history_length = 60; //24 * 60 * 60;
 const ticker = "btcusdt";
 
 let last_time = 0;

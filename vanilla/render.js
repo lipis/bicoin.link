@@ -145,9 +145,5 @@ function seconds_to_x(seconds) {
 }
 
 function price_to_y(p) {
-  return (
-    height -
-    2 * 48 * dpi -
-    (height - 4 * 48 * dpi) * ((p - price_min) / (price_max - price_min))
-  );
+  return height - 2 * 48 * dpi - (height - 4 * 48 * dpi) * ((p - price_min) / (price_max - price_min));
 }

@@ -100,6 +100,9 @@ function reconnect_private_ws() {
   private = null;
   if (!state.token) return;
   private_ws = new WebSocket(private_ws_url);
+  private_ws.onopen = (error) => {
+    private_ws.send(JSON.stringify({ token: state.token }));
+  };
   // private_ws.onclose = () =>
   //   setTimeout(reconnect_private_ws, reconnect_timeout_ms);
   private_ws.onerror = (error) => {
@@ -169,9 +172,5 @@ const ctx = canvas.getContext("2d");
 
 // # Utils
 function format_date(seconds) {
-  return new Date(seconds * 1000)
-    .toJSON()
-    .replace(".000", "")
-    .replace("T", " ")
-    .replace("Z", "");
+  return new Date(seconds * 1000).toJSON().replace(".000", "").replace("T", " ").replace("Z", "");
 }

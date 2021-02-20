@@ -55,9 +55,7 @@ class RedisStore {
   }
 
   async get_history(ticker) {
-    return (
-      await this.redis.zrange("history#" + ticker, -history_length, -1)
-    ).map(JSON.parse);
+    return (await this.redis.zrange("history#" + ticker, -history_length, -1)).map(JSON.parse);
   }
 
   async get_bets(ticker, user_id) {
@@ -102,6 +100,7 @@ app.post("/rest/bets", body_parser.json(), async (req, res) => {
   const user_id = req.headers["auth-token"];
   if (!user_id) return res.json(null);
   res.json(await store.put_bet(req.params.ticker, user_id, req.body.is_up));
+  wss_private_broadcast(user_id, "hello", "world");
 });
 
 // # Public WebSocket API
@@ -119,9 +118,24 @@ function wss_public_broadcast(tag, data) {
 
 // # Private WebSocket API
 wss_private.on("connection", function connection(ws) {
-  ws.send(JSON.stringify({ tag: "hello", data: "todo@private" }));
+  ws.on("message", function connection(message) {
+    const event = JSON.parse(message);
+    if (event.token) ws.user_id = event.token;
+    wss_private_on_message(ws.user_id, event);
+  });
 });
-function wss_private_broadcast(user_id, tag, data) {}
+
+function wss_private_broadcast(user_id, tag, data) {
+  for (const ws of wss_private.clients) {
+    if (ws.readyState === WebSocket.OPEN && ws.user_id == user_id) {
+      ws.send(JSON.stringify({ tag, data }));
+    }
+  }
+}
+
+function wss_private_on_message(user_id, event) {
+  //
+}
 
 // # Binance
 // TODO possibly simplify and avoid the queue.

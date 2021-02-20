@@ -27,10 +27,10 @@ export class CdkStackStack extends cdk.Stack {
     const zone = route53.HostedZone.fromLookup(this, "bicoin-hostedzone", {
       domainName: env.domain,
     });
-    const certificate = new acm.Certificate(this, "bicoin-Certificate", {
-      domainName: env.domain,
-      validation: acm.CertificateValidation.fromDns(zone),
-    });
+    // const certificate = new acm.Certificate(this, "bicoin-Certificate", {
+    //   domainName: env.domain,
+    //   validation: acm.CertificateValidation.fromDns(zone),
+    // });
 
     // const redis_task = new ecs.FargateTaskDefinition(this, "redis-task");
     // redis_task
@@ -54,8 +54,8 @@ export class CdkStackStack extends cdk.Stack {
       cpu: 256,
       desiredCount: 1,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromRegistry("tzador/bicoin-worker:latest"),
-        containerPort: 4000,
+        image: ecs.ContainerImage.fromRegistry("tzador/bicoin-worker:v7"),
+        containerPort: 8080,
         logDriver: ecs.LogDrivers.awsLogs({
           streamPrefix: "bicoin",
           logRetention: logs.RetentionDays.TWO_MONTHS,
@@ -66,21 +66,21 @@ export class CdkStackStack extends cdk.Stack {
       },
       memoryLimitMiB: 512,
       publicLoadBalancer: true,
-      certificate,
-      domainName: env.domain,
-      domainZone: zone,
+      // certificate,
+      // domainName: env.domain,
+      // domainZone: zone,
     });
 
-    new route53.ARecord(this, "bicoin-worker-arecord", {
-      zone,
-      recordName: env.domain,
-      target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
-    });
-    new route53.ARecord(this, "bicoin-worker-arecord2", {
-      zone,
-      recordName: "*." + env.domain,
-      target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
-    });
+    // new route53.ARecord(this, "bicoin-worker-arecord", {
+    //   zone,
+    //   recordName: env.domain,
+    //   target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
+    // });
+    // new route53.ARecord(this, "bicoin-worker-arecord2", {
+    //   zone,
+    //   recordName: "*." + env.domain,
+    //   target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
+    // });
   }
 }
 

@@ -37,7 +37,7 @@ a:hover {
   opacity: 0.5;
   pointer-events: none;
   object-fit: cover;
-  filter: blur(8px);
+  /* filter: blur(8px); */
 }
 
 #canvas {

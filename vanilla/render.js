@@ -5,12 +5,18 @@ const speed_x = 8;
 let animated_price = 0;
 let price_min = Number.MAX_VALUE;
 let price_max = Number.MIN_VALUE;
+let seconds_now = Date.now() / 1000.0;
+let width = 0;
+let height = 0;
 
-function render(ctx, width, height, state) {
+function render(ctx, w, h, state) {
+  width = w;
+  height = h;
+  seconds_now = Date.now() / 1000.0;
   render_init(state.history);
-  render_history(ctx, width, height, state.history, state.ticker.price);
-  render_bets(ctx, width, height, state.bets);
-  render_chessboard(ctx, width, height, state.history);
+  render_history(ctx, state.history, state.ticker.price);
+  render_bets(ctx, state.bets);
+  render_zebra(ctx, state.history);
 }
 
 function render_init(history) {
@@ -22,22 +28,41 @@ function render_init(history) {
   }
 }
 
-function render_chessboard(ctx, width, height, history) {}
+function render_zebra(ctx, history) {
+  let ztime = Math.floor(seconds_now) + 60 * 10;
+  ctx.save();
+  while (true) {
+    const x0 = seconds_to_x(ztime - 1);
+    const y0 = 0;
+    const x1 = seconds_to_x(ztime);
+    const y1 = height;
+    if (Math.floor(ztime) % 2 == 0) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.125)";
+    } else {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.0)";
+    }
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ztime -= 1;
+    if (x0 < 0) break;
+  }
+  const zero_x = seconds_to_x(seconds_now);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(zero_x, 0, zero_x + width, height);
+  ctx.restore();
+}
 
-function render_history(ctx, width, height, history, current_price) {
+function render_history(ctx, history, current_price) {
   animated_price = animated_price * 0.9 + 0.1 * current_price;
 
   const dpi = devicePixelRatio;
-  const seconds_now = Date.now() / 1000.0;
-
   ctx.save();
   ctx.beginPath();
   let first_time = true;
   let last_x = 0;
   let last_y = 0;
   for (const { seconds, price } of history) {
-    const x = seconds_to_x(seconds, width, seconds_now);
-    const y = price_to_y(price, height);
+    const x = seconds_to_x(seconds);
+    const y = price_to_y(price);
     last_x = x;
     last_y = y;
     if (first_time) {
@@ -49,7 +74,7 @@ function render_history(ctx, width, height, history, current_price) {
   // ctx.lineTo(width, last_y);
   ctx.strokeStyle = "yellow";
   ctx.lineWidth = 2 * dpi;
-  const zero_x = seconds_to_x(seconds_now, width, seconds_now);
+  const zero_x = seconds_to_x(seconds_now);
   ctx.lineTo(zero_x, last_y);
   ctx.stroke();
   ctx.lineTo(zero_x, height);
@@ -63,7 +88,7 @@ function render_history(ctx, width, height, history, current_price) {
   ctx.restore();
 }
 
-function render_bets(ctx, width, height, bets) {
+function render_bets(ctx, bets) {
   const dpi = devicePixelRatio;
   ctx.save();
   let y = 48 * dpi;
@@ -95,11 +120,11 @@ function render_bets(ctx, width, height, bets) {
   ctx.restore();
 }
 
-function seconds_to_x(seconds, width, seconds_now) {
+function seconds_to_x(seconds) {
   return width - (seconds_now - seconds) * speed_x - shift_x * devicePixelRatio;
 }
 
-function price_to_y(p, height) {
+function price_to_y(p) {
   return (
     height -
     48 * devicePixelRatio -

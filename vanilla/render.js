@@ -1,5 +1,5 @@
 const bets_width = 274;
-const shift_x = 240;
+const shift_x = 0 * 240;
 const speed_x = 8;
 
 let animated_price = 0;

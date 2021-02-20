@@ -69,11 +69,7 @@ async function place_bet(is_up) {
     }
     if (last_ticker_seconds != state.ticker.seconds) {
       last_ticker_seconds = state.ticker.seconds;
-      const date = new Date(state.ticker.seconds * 1000)
-        .toJSON()
-        .replace(".000", "")
-        .replace("T", " ")
-        .replace("Z", "");
+      const date = format_date(state.ticker.seconds);
       let price_str = state.ticker.price.toString();
       while (price_str.length < 9) price_str = price_str + "0";
       const ticker_value = `${date} &nbsp; 1 BTC = <span style="color: white">${price_str}</span> USDT`;
@@ -167,3 +163,12 @@ const ctx = canvas.getContext("2d");
   render_bets(ctx, canvas.width, canvas.height, state.bets);
   requestAnimationFrame(render_loop);
 })();
+
+// # Utils
+function format_date(seconds) {
+  return new Date(seconds * 1000)
+    .toJSON()
+    .replace(".000", "")
+    .replace("T", " ")
+    .replace("Z", "");
+}

@@ -24,11 +24,12 @@ Bla bla bla.
 - pub/sub
 - sound/speach
 - scores
-- test
-- device pixel ratio
+- tests
+- zooming
 
 # DONE
 
+- device pixel ratio
 - render history
 
 # Welcome to your CDK TypeScript project!

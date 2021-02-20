@@ -134,7 +134,7 @@ function wss_private_broadcast(user_id, tag, data) {
 }
 
 function wss_private_on_message(user_id, event) {
-  //
+  // TODO: todo
 }
 
 // # Binance

@@ -1,5 +1,5 @@
 const bets_width = 274;
-const shift_x = 0 * 240;
+const shift_x = 240;
 const speed_x = 8;
 
 let price_min = Number.MAX_VALUE;
@@ -101,10 +101,10 @@ function render_bets(ctx, bets) {
     const y = price_to_y(bet.open_price);
     const w = speed_x * 60;
     if (bet.is_up) {
-      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+      ctx.fillStyle = "rgba(0, 255, 0, 0.25)";
       ctx.fillRect(x, 0, w, y);
     } else {
-      ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+      ctx.fillStyle = "rgba(255, 0, 0, 0.25)";
       ctx.fillRect(x, y, w, height - y);
     }
   }
@@ -113,7 +113,6 @@ function render_bets(ctx, bets) {
   ctx.save();
   let y = 48 * dpi;
   for (const bet of bets) {
-    const seconds_now = Date.now() / 1000.0;
     const diff = Math.floor(seconds_now - bet.seconds);
     const capped = Math.max(0, Math.min(60, diff));
     ctx.save();

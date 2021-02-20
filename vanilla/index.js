@@ -1,6 +1,7 @@
 const TOKEN = "auth_token";
-const public_ws_url = "ws://localhost:8080/ws/public";
-const private_ws_url = "ws://localhost:8080/ws/private";
+const ws_base_url = location.protocol.replace("http", "ws") + "//" + location.host;
+const public_ws_url = ws_base_url + "/ws/public";
+const private_ws_url = ws_base_url + "/ws/private";
 const binance_ws_url = "wss://stream.binance.com:9443/ws/btcusdt@aggTrade";
 const rest_base_url = "";
 const reconnect_timeout_ms = 1000;
@@ -48,6 +49,7 @@ async function place_bet(is_up) {
   const ticker_el = document.getElementById("ticker");
   const login_el = document.getElementById("login");
   const logout_el = document.getElementById("logout");
+  const reset_el = document.getElementById("reset");
   const buttons_el = document.getElementById("buttons");
   let last_auth_token = -1;
   let last_ticker_seconds = -1;
@@ -59,11 +61,13 @@ async function place_bet(is_up) {
         login_el.style.display = "none";
         logout_el.style.display = "block";
         logout_el.innerText = "Logout @" + state.token;
+        reset_el.style.display = "block";
         buttons_el.style.display = "flex";
       } else {
         login_el.style.display = "block";
         logout_el.style.display = "none";
         logout_el.style.innerText = "";
+        reset_el.style.display = "none";
         buttons_el.style.display = "none";
       }
     }

@@ -24,9 +24,9 @@ export class CdkStackStack extends cdk.Stack {
     const cluster = new ecs.Cluster(this, "bicoin-cluster", {
       vpc,
     });
-    const zone = route53.HostedZone.fromLookup(this, "bicoin-hostedzone", {
-      domainName: env.domain,
-    });
+    // const zone = route53.HostedZone.fromLookup(this, "bicoin-hostedzone", {
+    //   domainName: env.domain,
+    // });
     // const certificate = new acm.Certificate(this, "bicoin-Certificate", {
     //   domainName: env.domain,
     //   validation: acm.CertificateValidation.fromDns(zone),
@@ -54,7 +54,7 @@ export class CdkStackStack extends cdk.Stack {
       cpu: 256,
       desiredCount: 1,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromRegistry("tzador/bicoin-worker:v7"),
+        image: ecs.ContainerImage.fromRegistry("tzador/bicoin-worker:v8"),
         containerPort: 8080,
         logDriver: ecs.LogDrivers.awsLogs({
           streamPrefix: "bicoin",

@@ -96,6 +96,21 @@ function render_history(ctx, history, current_price) {
 
 function render_bets(ctx, bets) {
   ctx.save();
+  for (const bet of bets) {
+    const x = seconds_to_x(bet.seconds);
+    const y = price_to_y(bet.open_price);
+    const w = speed_x * 60;
+    if (bet.is_up) {
+      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+      ctx.fillRect(x, 0, w, y);
+    } else {
+      ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+      ctx.fillRect(x, y, w, height - y);
+    }
+  }
+  ctx.restore();
+
+  ctx.save();
   let y = 48 * dpi;
   for (const bet of bets) {
     const seconds_now = Date.now() / 1000.0;
@@ -104,15 +119,15 @@ function render_bets(ctx, bets) {
     ctx.save();
     ctx.translate(8 * dpi, 8 * dpi);
     if (bet.is_up) {
-      ctx.fillStyle = "rgba(0, 255, 0, 0.125)";
+      ctx.fillStyle = "rgba(0, 255, 0, 0.25)";
     } else {
-      ctx.fillStyle = "rgba(255, 0, 0, 0.125)";
+      ctx.fillStyle = "rgba(255, 0, 0, 0.25)";
     }
     ctx.fillRect(0, y, bets_width * dpi, 32 * dpi);
     if (bet.is_up) {
-      ctx.fillStyle = "rgba(0, 255, 0, 0.75)";
+      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
     } else {
-      ctx.fillStyle = "rgba(255, 0, 0, 0.75)";
+      ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
     }
     ctx.fillRect(0, y, (1 - capped / 60) * bets_width * dpi, 32 * dpi);
     ctx.fillStyle = "white";

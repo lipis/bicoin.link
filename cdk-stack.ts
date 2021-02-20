@@ -24,31 +24,6 @@ export class CdkStackStack extends cdk.Stack {
     const cluster = new ecs.Cluster(this, "bicoin-cluster", {
       vpc,
     });
-    // const zone = route53.HostedZone.fromLookup(this, "bicoin-hostedzone", {
-    //   domainName: env.domain,
-    // });
-    // const certificate = new acm.Certificate(this, "bicoin-Certificate", {
-    //   domainName: env.domain,
-    //   validation: acm.CertificateValidation.fromDns(zone),
-    // });
-
-    // const redis_task = new ecs.FargateTaskDefinition(this, "redis-task");
-    // redis_task
-    //   .addContainer("redis", {
-    //     image: ecs.ContainerImage.fromRegistry("redis:latest"),
-    //   })
-    //   .addPortMappings({ containerPort: 6379 });
-
-    // const redis_service = new ecs.FargateService(this, "redis-service", {
-    //   cluster,
-    //   taskDefinition: redis_task,
-    //   desiredCount: 1,
-    //   cloudMapOptions: {
-    //     name: "redis",
-    //     dnsRecordType: servicediscovery.DnsRecordType.A,
-    //   },
-    // });
-
     const service = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "worker-service", {
       cluster: cluster,
       cpu: 256,
@@ -66,21 +41,7 @@ export class CdkStackStack extends cdk.Stack {
       },
       memoryLimitMiB: 512,
       publicLoadBalancer: true,
-      // certificate,
-      // domainName: env.domain,
-      // domainZone: zone,
     });
-
-    // new route53.ARecord(this, "bicoin-worker-arecord", {
-    //   zone,
-    //   recordName: env.domain,
-    //   target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
-    // });
-    // new route53.ARecord(this, "bicoin-worker-arecord2", {
-    //   zone,
-    //   recordName: "*." + env.domain,
-    //   target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(service.loadBalancer)),
-    // });
   }
 }
 

@@ -40,7 +40,7 @@ function logout() {
 }
 
 async function place_bet(is_up) {
-  state.bets.push(await rest_post("/rest/bets/", { is_up }));
+  state.bets.unshift(await rest_post("/rest/bets/", { is_up }));
 }
 
 // # Mirror
@@ -70,7 +70,7 @@ async function place_bet(is_up) {
     if (last_ticker_seconds != state.ticker.seconds) {
       last_ticker_seconds = state.ticker.seconds;
       const date = format_date(state.ticker.seconds);
-      let price_str = state.ticker.price.toString();
+      let price_str = state.ticker.price.toFixed(3).toString();
       while (price_str.length < 9) price_str = price_str + "0";
       const ticker_value = `${date} &nbsp; 1 BTC = <span style="color: white">${price_str}</span> USDT`;
       ticker_el.innerHTML = ticker_value;
@@ -113,7 +113,10 @@ function reconnect_private_ws() {
 }
 
 function on_public(tag, data) {
-  if (tag == "ticker#btcusdt") state.ticker = data;
+  if (tag == "ticker#btcusdt") {
+    state.ticker = data;
+    state.history.push(data);
+  }
 }
 
 function on_private(tag, data) {
@@ -159,8 +162,7 @@ const ctx = canvas.getContext("2d");
   canvas.height = window.innerHeight * devicePixelRatio;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.font = 14 * devicePixelRatio + 'px "Roboto Mono", monospace';
-  render_history(ctx, canvas.width, canvas.height, state.history);
-  render_bets(ctx, canvas.width, canvas.height, state.bets);
+  render(ctx, canvas.width, canvas.height, state);
   requestAnimationFrame(render_loop);
 })();
 

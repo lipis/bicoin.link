@@ -7,7 +7,8 @@ const body_parser = require("body-parser");
 
 const port = 8080;
 const binance_ws_url = "wss://stream.binance.com:9443/ws/btcusdt@aggTrade";
-const history_length = 6;
+const history_length = 24 * 60 * 60;
+const ticker = "btcusdt";
 
 let last_time = 0;
 let last_price = 0;
@@ -107,6 +108,7 @@ app.post("/rest/bets", body_parser.json(), async (req, res) => {
 wss_public.on("connection", function connection(ws) {
   ws.send(JSON.stringify({ tag: "hello", data: "public" }));
 });
+
 function wss_public_broadcast(tag, data) {
   for (const ws of wss_public.clients) {
     if (ws.readyState === WebSocket.OPEN) {
@@ -122,8 +124,8 @@ wss_private.on("connection", function connection(ws) {
 function wss_private_broadcast(user_id, tag, data) {}
 
 // # Binance
+// TODO possibly simplify and avoid the queue.
 (function binance() {
-  const ticker = "btcusdt";
   const queue = [];
   (async function process_binance() {
     while (queue.length) {

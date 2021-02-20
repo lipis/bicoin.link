@@ -1,0 +1,11 @@
+{
+  "availability-zones:account=213480320127:region=eu-central-1": [
+    "eu-central-1a",
+    "eu-central-1b",
+    "eu-central-1c"
+  ],
+  "hosted-zone:account=213480320127:domainName=bicoin.link:region=eu-central-1": {
+    "Id": "/hostedzone/Z000602527RC733MLEJM0",
+    "Name": "bicoin.link."
+  }
+}

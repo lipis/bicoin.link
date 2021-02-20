@@ -1,5 +1,3 @@
-env.js
-
 # From CDK
 *.js
 !jest.config.js

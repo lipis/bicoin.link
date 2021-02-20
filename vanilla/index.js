@@ -116,6 +116,7 @@ function on_public(tag, data) {
   if (tag == "ticker#btcusdt") {
     state.ticker = data;
     state.history.push(data);
+    update_favicon();
   }
 }
 

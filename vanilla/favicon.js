@@ -6,7 +6,7 @@
   canvas.width = 64;
   canvas.height = 64;
   img.src = "favicon.png";
-  img.onload = function favicon_loop() {
+  window.update_favicon = () => {
     ctx.save();
     ctx.clearRect(0, 0, 64, 64);
     ctx.translate(32, 32);
@@ -15,6 +15,5 @@
     const base64 = canvas.toDataURL("image/png");
     favicon.href = base64;
     ctx.restore();
-    requestAnimationFrame(favicon_loop);
   };
 }
